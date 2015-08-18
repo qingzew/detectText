@@ -1,3 +1,6 @@
+/*
+ *http://blog.csdn.net/zhazhiqiang/article/details/21047207?utm_source=tuicool
+ */
 #include <iostream>
 #include <fstream>
 
