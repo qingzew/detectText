@@ -3,7 +3,7 @@
 #include <opencv2/nonfree/features2d.hpp>
 
 int main(int argc, char **argv) {
-	cv::Mat img = cv::imread("74.png");
+	cv::Mat img = cv::imread("41.png");
 	cv::cvtColor(img, img, CV_BGR2GRAY);
 
 	//cv::SIFT sift(2000, 50, 0.04, 5);
@@ -16,7 +16,7 @@ int main(int argc, char **argv) {
 
 	std::cout <<"keypoints: "  << keypoints.size() << std::endl;
 
-	cv::drawKeypoints(img, keypoints, dest);
+	cv::drawKeypoints(img, keypoints, dest, cv::Scalar(0, 0, 255));
 
 	cv::imshow("sift", dest);
 
