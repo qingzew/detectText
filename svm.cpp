@@ -3,15 +3,17 @@
 #include <sstream>
 
 #include <opencv2/opencv.hpp>
-#include <opencv2/nonfree/features2d.hpp>
-#include <opencv2\ml\ml.hpp>
+//#include <opencv2/nonfree/features2d.hpp>
+#include <opencv2/ml/ml.hpp>
 
 #define DEBUG
 
+const int imgNo = 24;
+const int trainNo = 20;
+const int testNo = 4;
 
 int main(int argc, char **argv) {
-	const int imgNo = 8;
-	//CvSVM::train 要求样本数据存储在float 类型的Mat中	
+	//CvSVM::train 要求样本数据存储在float 类型的Mat中
 	cv::Mat feature;
 
 	for (int i = 0; i < imgNo; i++) {
@@ -44,7 +46,7 @@ int main(int argc, char **argv) {
 #ifdef DEBUG
 		std::cout << "hog descriptor size is " << hog.getDescriptorSize() << std::endl;
 #endif
-			
+
 		cv::Mat row = cv::Mat(desc, true).reshape(1, 1);
 
 		if (feature.empty()) {
@@ -60,8 +62,8 @@ int main(int argc, char **argv) {
 	std::cout << "feature size: " << feature.size() << std::endl;
 #endif
 
-	float lb[imgNo] = { 1, 1, 1, 1, 1, 1, 0, 0 };
-	cv::Mat labels = cv::Mat(imgNo, 1, CV_32FC1, lb);
+	float lb[trainNo] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+	cv::Mat labels = cv::Mat(trainNo, 1, CV_32FC1, lb);
 
 	cv::SVMParams params;
 	params.svm_type = cv::SVM::C_SVC;
@@ -69,9 +71,13 @@ int main(int argc, char **argv) {
 	params.term_crit = cv::TermCriteria(CV_TERMCRIT_ITER, 100, 1e-6);
 
 	cv::SVM svm;
-	svm.train(feature, labels, cv::Mat(), cv::Mat(), params);
-		
-	std::cout << svm.predict(feature.row(7)) << std::endl;
+	svm.train(feature(cv::Range(0, trainNo), cv::Range::all()), labels, cv::Mat(), cv::Mat(), params);
+
+    std::cout << "predict result: " << std::endl;
+	std::cout << svm.predict(feature.row(20)) << std::endl;
+	std::cout << svm.predict(feature.row(21)) << std::endl;
+	std::cout << svm.predict(feature.row(22)) << std::endl;
+	std::cout << svm.predict(feature.row(23)) << std::endl;
 
 	return 0;
 }

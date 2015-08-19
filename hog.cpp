@@ -1,5 +1,6 @@
 /*
  *http://blog.csdn.net/zhazhiqiang/article/details/21047207?utm_source=tuicool
+ *http://www.juergenwiki.de/work/wiki/doku.php?id=public:hog_descriptor_computation_and_visualization
  */
 #include <iostream>
 #include <fstream>
