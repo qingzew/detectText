@@ -1,7 +1,10 @@
 #include <iostream>
-#include "binarization.h"
-#include "commonUtils/binarization/GraphcutSeg.h"
+#include <opencv2/opencv.hpp>
+#include <opencv2/core/core.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
+#include <opencv2/highgui/highgui.hpp>
 
+#include "commonUtils/binarization/GraphcutSeg.h"
 #include <fstream>
 
 const double k =  0.3;
@@ -425,9 +428,7 @@ cv::Mat gcnlBin(cv::Mat image, std::string method) {
 	binSeed2 -= 0.5;
 
 	cv::Mat inProbs1 = 0.5 + 4 * absSeedImg.mul(binSeed1);
-	cv::imshow("inProbs1", inProbs1);
 	cv::Mat inProbs2 = 0.5 + 4 * absSeedImg.mul(binSeed2);
-	cv::imshow("inProbs2", inProbs2);
 
 	cv::Mat image32f;
 	image.convertTo(image32f, CV_32F);
