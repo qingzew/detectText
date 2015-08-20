@@ -17,18 +17,18 @@ public:
 	Data(int x, int y, double d) {
 		this->x = x;
 		this->y = y;
-		this->minDis = d;
+		this->dis = d;
 	}
 
 	int x;
 	int y;
-	double minDis;
+	double dis;
 };
 
 class Comp {
 public:
 	bool operator()(const Data &d1, const Data &d2) {
-		return d1.minDis > d2.minDis;
+		return d1.dis > d2.dis;
 	}
 };
 
@@ -52,7 +52,7 @@ int main(int argc, char **argv) {
 
 	//cv::waitKey(0);
 
-	cv::Mat source = cv::imread("siftData/sku-3.png");
+	cv::Mat source = cv::imread("siftData/sku-1.png");
 	cv::cvtColor(source, source, CV_BGR2GRAY);
 
 	if (source.empty()) {
@@ -60,7 +60,7 @@ int main(int argc, char **argv) {
 		exit(1);
 	}
 
-	cv::Mat target = cv::imread("siftData/b.png");
+	cv::Mat target = cv::imread("siftData/e.png");
 	cv::cvtColor(target, target, CV_BGR2GRAY);
 	if (target.empty()) {
 		std::cerr << "no image..." << std::endl;
@@ -119,10 +119,11 @@ int main(int argc, char **argv) {
 
 	int cnt = 0;
 	for (std::set<Data, Comp>::reverse_iterator it = s.rbegin(); it != s.rend(); it++) {
+		std::cout << "dis: " << (*it).dis << std::endl;
 		ks.push_back(keyPointS[(*it).x]);
 		kt.push_back(keyPointT[(*it).y]);
 
-		if (++cnt >= 50) {
+		if (++cnt >= 20) {
 			break;
 		}
 	}
