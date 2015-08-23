@@ -1,10 +1,13 @@
 #include <iostream>
-#include "binarization.h"
-#include "commonUtils/binarization/GraphcutSeg.h"
+#include <opencv2/opencv.hpp>
+#include <opencv2/core/core.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
+#include <opencv2/highgui/highgui.hpp>
 
+#include "commonUtils/binarization/GraphcutSeg.h"
 #include <fstream>
 
-const double k =  0.5;
+const double k =  0.3;
 const double dR = 128;
 
 void PM_G1(const cv::Mat &src, cv::Mat &dst, cv::Mat &Lx, cv::Mat &Ly, float k)
@@ -188,29 +191,31 @@ cv::Mat gradient(Mat& image) {
 	cv::Mat kernel = 1.0 / 32.0 *  cv::Mat(3, 5, CV_32F, s);
     cv::Mat kernelT = kernel.t();
 
+	//卷积
+    //cv::Mat kernelF;
+    //cv::flip(kernel, kernelF, -1);
+    //cv::Mat kernelTF;
+    //cv::flip(kernel, kernelTF, -1);
 
-//    cv::Mat kernelF;
-//    cv::flip(kernel, kernelF, -1);
-//    cv::Mat kernelTF;
-//    cv::flip(kernel, kernelTF, -1);
-//
-//    cv::Point anchor(kernelT.cols-kernelT.cols/2-1, kernelT.rows-kernelT.rows/2-1);
-//    cv::Point anchorT(kernelTF.cols-kernelTF.cols/2-1, kernelTF.rows-kernelTF.rows/2-1);
-//
-//    cv::Mat gradx, grady, grad;
-//    cv::filter2D(image, gradx, image.depth(), kernelF, cv::Point(-1, -1), 0, BORDER_CONSTANT);
-//    cv::filter2D(image, grady, image.depth(), kernelTF, cv::Point(-1, -1), 0, BORDER_CONSTANT);
-//
-//    cv::addWeighted(gradx, 0.5, grady, 0.5, 0, grad);
+    //cv::Point anchor(kernelT.cols-kernelT.cols/2-1, kernelT.rows-kernelT.rows/2-1);
+    //cv::Point anchorT(kernelTF.cols-kernelTF.cols/2-1, kernelTF.rows-kernelTF.rows/2-1);
 
-//    cv::Mat gradx, grady, grad;
-//    cv::filter2D(image, gradx, CV_32F, kernel);
-//    cv::filter2D(image, grady, CV_32F, kernelT);
+    //cv::Mat gradx, grady, grad;
+    //cv::filter2D(image, gradx, image.depth(), kernelF, cv::Point(-1, -1), 0, BORDER_CONSTANT);
+    //cv::filter2D(image, grady, image.depth(), kernelTF, cv::Point(-1, -1), 0, BORDER_CONSTANT);
+
+    //cv::addWeighted(gradx, 0.5, grady, 0.5, 0, grad);
+
+	//相关性
+    //cv::Mat gradx, grady, grad;
+    //cv::filter2D(image, gradx, CV_32F, kernel);
+    //cv::filter2D(image, grady, CV_32F, kernelT);
 
 
-//    cv::addWeighted(gradx, 0.5, grady, 0.5, 0, grad);
-//    cv::imshow("grad", grad);
+    //cv::addWeighted(gradx, 0.5, grady, 0.5, 0, grad);
+    //cv::imshow("grad", grad);
 
+	//非线性
     cv::Mat gradx, grady;
     cv::Mat grad(image.rows, image.cols, CV_32F);
     cv::filter2D(image, gradx, CV_32F, kernel);
@@ -218,10 +223,9 @@ cv::Mat gradient(Mat& image) {
 
     double k = Compute_K_Percentile(image, 0.7, 1, 300, 0, 0);
     std::cout<<k<<std::endl;
-//    PM_G2(image, grad, gradx, grady, k);
-    Weickert_Diffusivity(image, grad, gradx, grady, k);
+    PM_G2(image, grad, gradx, grady, k);
+    //Weickert_Diffusivity(image, grad, gradx, grady, k);
     cv::imshow("grad", grad);
-
 
     return grad;
 }
@@ -270,7 +274,7 @@ cv::Mat binNiblack(cv::Mat image, double k) {
 	Mat thr = mean + k * deviation;
 	Mat thr_ = mean - k * deviation;
 
-	Mat output = Mat::ones(image.rows, image.cols, CV_32F) * 0.5;
+	Mat output = Mat::zeros(image.rows, image.cols, CV_32F);
 	for (int j = 0; j < image.cols; j++) {
 		for (int i = 0; i < image.rows; i++) {
 			if (image.at<uchar>(i, j) > thr.at<float>(i, j)) {
@@ -306,7 +310,7 @@ cv::Mat binSauvola(cv::Mat image, double k, double dR) {
 	cv::Mat thr = mean.mul(1 + 0.5 * (deviation / dR - 1));
 	cv::Mat thr_ = mean_.mul(1 + 0.5 * (deviation_ / dR - 1));
 
-	Mat output = Mat::ones(image.rows, image.cols, CV_32F) * 0.5;
+	Mat output = Mat::zeros(image.rows, image.cols, CV_32F);
 	for (int j = 0; j < image.cols; j++) {
 		for (int i = 0; i < image.rows; i++) {
 
@@ -349,7 +353,7 @@ cv::Mat binWolf(cv::Mat image, double k, double dR) {
 	cv::Mat thr = mean + k * (deviation / maxD - 1).mul(mean - minG);
 	cv::Mat thr_ = mean_ + k * (deviation_ / maxD_ - 1).mul(mean_ - minG);
 
-	Mat output = Mat::ones(image.rows, image.cols, CV_32F) * 0.5;
+	Mat output = Mat::zeros(image.rows, image.cols, CV_32F);
 	for (int j = 0; j < image.cols; j++) {
 		for (int i = 0; i < image.rows; i++) {
 			if (image.at<uchar>(i, j) < thr.at<float>(i, j) && image_.at<uchar>(i, j) >= thr_.at<float>(i, j)) {
@@ -374,8 +378,6 @@ cv::Mat gcnlBin(cv::Mat image, std::string method) {
 
 	cv::Mat gray(image.rows, image.cols, CV_32F);
 	cv::cvtColor(image, gray, CV_BGR2GRAY);
-
-	//cv::GaussianBlur(gray, gray, Size(3, 3), 0, 0, BORDER_DEFAULT);
 
     cv::Mat lap = gradient(gray);
     lap.convertTo(lap, CV_32F);
@@ -426,9 +428,7 @@ cv::Mat gcnlBin(cv::Mat image, std::string method) {
 	binSeed2 -= 0.5;
 
 	cv::Mat inProbs1 = 0.5 + 4 * absSeedImg.mul(binSeed1);
-	cv::imshow("inProbs1", inProbs1);
 	cv::Mat inProbs2 = 0.5 + 4 * absSeedImg.mul(binSeed2);
-	cv::imshow("inProbs2", inProbs2);
 
 	cv::Mat image32f;
 	image.convertTo(image32f, CV_32F);
@@ -445,7 +445,7 @@ cv::Mat gcnlBin(cv::Mat image, std::string method) {
 	cv::Mat labels2 = gcs2.getResult();
 	cv::imshow("label2", labels2);
 
-	cv::Mat output = cv::Mat::ones(image.rows, image.cols, CV_32F);
+	cv::Mat output = cv::Mat::zeros(image.rows, image.cols, CV_32F);
 
 	for (int i = 0; i<output.rows; i++) {
 		for (int j = 0; j<output.cols; j++) {
@@ -467,21 +467,19 @@ int main(int argc, char **argv) {
     std::string file = argv[1];
 	cv::Mat image = cv::imread(file);
 
-	cv::Mat gray;
-	cv::cvtColor(image, gray, CV_BGR2GRAY);
+	//cv::Mat gray;
+	//cv::cvtColor(image, gray, CV_BGR2GRAY);
 
-    //cv::Mat grad = gradient(gray);
-    //cv::imshow("grad", grad);
-	cv::Mat niblack = binNiblack(gray, k);
-	cv::imshow("niblack", mat2gray(niblack));
+	//cv::Mat niblack = binNiblack(gray, k);
+	//cv::imshow("niblack", mat2gray(niblack));
 
-//	cv::Mat sauvola = binSauvola(gray, k, dR);
-//	cv::imshow("sauvola", mat2gray(sauvola));
-//
-//	cv::Mat wolf = binWolf(gray, k, dR);
-//	cv::imshow("wolf", mat2gray(wolf));
-//
-	cv::Mat result = gcnlBin(image, "n");
+	//cv::Mat sauvola = binSauvola(gray, k, dR);
+	//cv::imshow("sauvola", mat2gray(sauvola));
+
+	//cv::Mat wolf = binWolf(gray, k, dR);
+	//cv::imshow("wolf", mat2gray(wolf));
+
+	cv::Mat result = gcnlBin(image, "w");
 	cv::imshow("result", mat2gray(result));
 
 	cv::waitKey(0);
