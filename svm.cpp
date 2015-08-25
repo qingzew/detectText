@@ -1,3 +1,7 @@
+/*
+ *http://www.csie.ntu.edu.tw/~cjlin/papers/libsvm.pdf
+ *http://docs.opencv.org/modules/ml/doc/support_vector_machines.html#cvsvm
+ */
 #include <iostream>
 #include <fstream>
 #include <sstream>

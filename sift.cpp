@@ -60,7 +60,7 @@ int main(int argc, char **argv) {
 		exit(1);
 	}
 
-	cv::Mat target = cv::imread("siftData/e.png");
+	cv::Mat target = cv::imread("siftData/d.png");
 	cv::cvtColor(target, target, CV_BGR2GRAY);
 	if (target.empty()) {
 		std::cerr << "no image..." << std::endl;
