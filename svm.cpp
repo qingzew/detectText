@@ -8,9 +8,9 @@
 
 #define DEBUG
 
-const int imgNo = 24;
+const int imgNo = 25;
 const int trainNo = 20;
-const int testNo = 4;
+const int testNo = 5;
 
 int main(int argc, char **argv) {
 	//CvSVM::train 要求样本数据存储在float 类型的Mat中
@@ -78,6 +78,7 @@ int main(int argc, char **argv) {
 	std::cout << svm.predict(feature.row(21)) << std::endl;
 	std::cout << svm.predict(feature.row(22)) << std::endl;
 	std::cout << svm.predict(feature.row(23)) << std::endl;
+	std::cout << svm.predict(feature.row(24)) << std::endl;
 
 	return 0;
 }

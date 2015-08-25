@@ -183,7 +183,7 @@ Mat get_hogdescriptor_visual_image(Mat& origImg, vector<float>& descriptorValues
 
 
 int main(int argc, char **argv) {
-	cv::Mat img = cv::imread("41.png");
+	cv::Mat img = cv::imread("hogData/0.png");
 	//    cv::resize(img, img, cv::Size(64, 128));
 
 	cv::Mat gray;
@@ -209,7 +209,7 @@ int main(int argc, char **argv) {
 	std::ofstream out("lap");
 	out << lap;
 	out.close();
-	
+
 	//cv::imshow("ori", img);
 	cv::imshow("vis", vis);
 	cv::waitKey(0);
